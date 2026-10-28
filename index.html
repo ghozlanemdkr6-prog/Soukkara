@@ -1,1 +1,327 @@
+import React, { useState } from 'react';
+import Head from 'next/head';
 
+export default function Storefront() {
+  const [store] = useState({
+    name: "حلويات أم أمين العاصمية",
+    bio: "أصالة الحلويات العاصمية والجزائرية التقليدية والعصرية باللوز الصافي، عسل طبيعي ولمسة إتقان لكل أفراحكم ومناسباتكم السعيدة.",
+    wilaya: "الجزائر العاصمة (القبة)",
+    phone: "0555001122",
+    rating: "4.9 (184 تقييم)"
+  });
+
+  const [activeCategory, setActiveCategory] = useState("الكل");
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customText, setCustomText] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [orderSuccess, setOrderSuccess] = useState(null);
+
+  const products = [
+    {
+      id: "prod-1",
+      title: "مقروط اللوز الملكي بالليمون",
+      category: "حلويات الأعراس",
+      price: 2800,
+      unit: "د.ج / كلغ",
+      description: "لوز حر مطحون ناعم مع نكهة قشور الليمون الطبيعي وماء زهر المقطر، مغلف بالسكر الناعم الفاخر بدون أي إضافات صناعية.",
+      image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&auto=format&fit=crop"
+    },
+    {
+      id: "prod-2",
+      title: "تشاراك العريان باللوز المنكه",
+      category: "مقروط وكعيكعات",
+      price: 2400,
+      unit: "د.ج / كلغ",
+      description: "عجينة هشة تذوب في الفم محشوة بقلب من اللوز المعسل بماء الورد المقطر، ومرشوشة بشرائح اللوز المقرمش.",
+      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop"
+    },
+    {
+      id: "prod-3",
+      title: "كعيكعات بريستيج مطلية ومزينة",
+      category: "حلويات الأعراس",
+      price: 250,
+      unit: "د.ج / حبة",
+      description: "طلاء ناعم متقن بلون وردي عاجي، محشوة بعقدة اللوز الطرية، مزينة بزهور السكر اليدوية ولمسات ذهبية راقية.",
+      image: "https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=600&auto=format&fit=crop"
+    },
+    {
+      id: "prod-4",
+      title: "تارت عيد ميلاد وأفراح مخصصة",
+      category: "تارت وكيك",
+      price: 4500,
+      unit: "د.ج / قالب",
+      description: "كعكة إسفنج خفيفة بحشوة جاناش الشوكولاطة البلجيكية، الفراولة الطازجة، وتزيين مخصص بالاسم أو كتابة حسب ذوقكم.",
+      image: "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=600&auto=format&fit=crop"
+    }
+  ];
+
+  const categories = ["الكل", "حلويات الأعراس", "مقروط وكعيكعات", "تارت وكيك"];
+  const filteredProducts = activeCategory === "الكل" 
+    ? products 
+    : products.filter(p => p.category === activeCategory);
+
+  const handleOpenOrder = (prod) => {
+    setSelectedProduct(prod);
+    setOrderModalOpen(true);
+  };
+
+  const handleSendOrder = (e) => {
+    e.preventDefault();
+    const orderNum = `ALG-${Math.floor(1000 + Math.random() * 9000)}`;
+    const depositCalc = Math.round(selectedProduct.price * 0.3);
+    setOrderSuccess({ orderNum, depositCalc, prodTitle: selectedProduct.title });
+  };
+
+  const openWhatsApp = () => {
+    const text = encodeURIComponent(
+      `سلام عليكم أم أمين، نطلب حجز:\n*${selectedProduct?.title}*\nرقم الطلبية: ${orderSuccess?.orderNum}\nالاسم: ${customerName}\nالهاتف: ${customerPhone}\nالموعد: ${deliveryDate}\nالكتابة المطلوبة: ${customText || 'بدون'}`
+    );
+    window.open(`https://wa.me/213${store.phone}?text=${text}`, '_blank');
+  };
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#fbf9f5] text-[#2c1810] font-sans pb-24">
+      <Head>
+        <title>{store.name} | حلاوتنا - قاطو دزاير</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      <header className="sticky top-0 z-30 bg-[#fbf9f5]/90 backdrop-blur-md border-b border-[#ebdcd0] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-black text-[#9e4a28]">حلاوتنا</span>
+          <span className="text-xs bg-[#9e4a28]/10 text-[#9e4a28] px-2 py-0.5 rounded-full font-bold">قاطو بلادي</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => alert("تم نسخ رابط المتجر لمشاركته")}
+            className="text-xs flex items-center gap-1 bg-white border border-[#d9c4b5] px-3 py-1.5 rounded-lg font-medium hover:bg-stone-50"
+          >
+            📋 مشاركة الرابط
+          </button>
+        </div>
+      </header>
+
+      <section className="p-4">
+        <div className="bg-white rounded-2xl p-5 border border-[#ebdcd0] shadow-sm relative overflow-hidden">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#f5e6dc] border-2 border-[#9e4a28] flex items-center justify-center text-2xl font-bold text-[#9e4a28] overflow-hidden">
+              👩‍🍳
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-lg font-bold text-stone-900">{store.name}</h1>
+                <span className="text-emerald-600 text-xs bg-emerald-50 px-2 py-0.5 rounded-full font-medium">حرفية معتمدة ✓</span>
+              </div>
+              <p className="text-xs text-stone-500 mt-1 flex items-center gap-1">📍 {store.wilaya}</p>
+              <div className="flex items-center gap-3 mt-2 text-xs">
+                <span className="bg-amber-50 text-amber-800 px-2 py-0.5 rounded-md font-semibold">★ {store.rating}</span>
+                <span className="text-stone-400">•</span>
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">حجز مسبق (3-5 أيام)</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-stone-600 mt-3.5 leading-relaxed bg-[#fbf9f5] p-3 rounded-xl border border-stone-100">
+            {store.bio}
+          </p>
+        </div>
+      </section>
+
+      <section className="px-4 py-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                activeCategory === cat 
+                  ? 'bg-[#9e4a28] text-white shadow-sm' 
+                  : 'bg-white text-stone-700 border border-[#e6d8ce] hover:bg-stone-50'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="p-4 space-y-4">
+        <h2 className="text-sm font-bold text-stone-800 flex items-center justify-between">
+          <span>قائمة الإبداعات الحرفية</span>
+          <span className="text-xs text-stone-500">{filteredProducts.length} أصناف</span>
+        </h2>
+
+        <div className="space-y-4">
+          {filteredProducts.map((product) => (
+            <div 
+              key={product.id}
+              className="bg-white rounded-2xl overflow-hidden border border-[#ebdcd0] shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="h-44 w-full bg-stone-100 overflow-hidden relative">
+                <img 
+                  src={product.image} 
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-[#9e4a28] text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                  {product.category}
+                </span>
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-base font-bold text-stone-900">{product.title}</h3>
+                  <div className="text-left">
+                    <span className="text-lg font-black text-[#9e4a28]">{product.price.toLocaleString()}</span>
+                    <span className="text-xs text-stone-500 mr-1">{product.unit}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-stone-600 mt-2 line-clamp-2 leading-relaxed">
+                  {product.description}
+                </p>
+
+                <div className="mt-4 flex gap-2">
+                  <button 
+                    onClick={() => handleOpenOrder(product)}
+                    className="flex-1 bg-[#9e4a28] hover:bg-[#853c1e] text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <span>طلب وتخصيص الحلوى</span>
+                    <span>✍️</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="p-4">
+        <div className="bg-[#f5e6dc]/40 rounded-2xl p-4 border border-[#ebdcd0] text-xs space-y-2 text-stone-700">
+          <h4 className="font-bold text-[#9e4a28] flex items-center gap-1.5 text-sm">
+            <span>🛡️</span> شروط تثبيت الطلبية والعربون
+          </h4>
+          <p>• يدفع عربون بنسبة 30% عبر بريدي موب (BaridiMob) أو CCP لتأكيد تاريخ الحجز.</p>
+          <p>• يتم تحضير الحلويات طازجة في اليوم المحدد لضمان جودة ونكهة العسل واللوز.</p>
+        </div>
+      </section>
+
+      {orderModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 border border-stone-200 shadow-2xl">
+            {!orderSuccess ? (
+              <form onSubmit={handleSendOrder} className="space-y-4">
+                <div className="flex justify-between items-center border-b border-stone-100 pb-3">
+                  <div>
+                    <h3 className="font-bold text-base text-stone-900">تأكيد طلب: {selectedProduct?.title}</h3>
+                    <p className="text-xs text-[#9e4a28] font-semibold">{selectedProduct?.price.toLocaleString()} {selectedProduct?.unit}</p>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={() => setOrderModalOpen(false)}
+                    className="text-stone-400 hover:text-stone-700 text-xl font-bold p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">الاسم واللقب الكريم *</label>
+                  <input 
+                    required 
+                    type="text" 
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="مثال: ياسمين بلقاسم" 
+                    className="w-full text-xs p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-[#9e4a28]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">رقم الهاتف للتواصل *</label>
+                  <input 
+                    required 
+                    type="tel" 
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="05 / 06 / 07 XX XX XX XX" 
+                    className="w-full text-xs p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-[#9e4a28]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">تاريخ المناسبة أو موعد الاستلام *</label>
+                  <input 
+                    required 
+                    type="date" 
+                    value={deliveryDate}
+                    onChange={(e) => setDeliveryDate(e.target.value)}
+                    className="w-full text-xs p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-[#9e4a28]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">الكتابة المخصصة على الحلوى (اختياري)</label>
+                  <input 
+                    type="text" 
+                    value={customText}
+                    onChange={(e) => setCustomText(e.target.value)}
+                    placeholder="مثال: ألف مبروك للعروسين سارة وياسين 💍" 
+                    className="w-full text-xs p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-[#9e4a28]"
+                  />
+                </div>
+
+                <div className="bg-[#fbf9f5] p-3 rounded-xl text-xs space-y-1 text-stone-600 border border-stone-100">
+                  <div className="flex justify-between">
+                    <span>المبلغ التقديري:</span>
+                    <span className="font-bold text-stone-800">{selectedProduct?.price.toLocaleString()} د.ج</span>
+                  </div>
+                  <div className="flex justify-between text-[#9e4a28] font-bold">
+                    <span>العربون المطلوب (30%):</span>
+                    <span>{Math.round(selectedProduct?.price * 0.3).toLocaleString()} د.ج</span>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full bg-[#9e4a28] hover:bg-[#853c1e] text-white py-3.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  تأكيد الحجز وإرسال الطلب ✓
+                </button>
+              </form>
+            ) : (
+              <div className="text-center py-4 space-y-4">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                  ✓
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg text-stone-900">تم تسجيل طلبيتك بنجاح!</h4>
+                  <p className="text-xs text-stone-500 mt-1">رقم الطلبية: <span className="font-mono font-bold text-stone-800">{orderSuccess.orderNum}</span></p>
+                </div>
+
+                <div className="bg-emerald-50 text-emerald-900 p-3 rounded-xl text-xs leading-relaxed border border-emerald-100 text-right">
+                  لتثبيت حجز الصينية، يرجى إرسال تفاصيل الطلب للبائعة مباشرة عبر واتساب لتأكيد العربون ({orderSuccess.depositCalc} د.ج).
+                </div>
+
+                <button 
+                  onClick={openWhatsApp}
+                  className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>💬 إرسال الطلب للبائعة عبر واتساب</span>
+                </button>
+
+                <button 
+                  onClick={() => { setOrderModalOpen(false); setOrderSuccess(null); }}
+                  className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 py-2.5 rounded-xl text-xs font-semibold"
+                >
+                  إغلاق ومتابعة التسوق
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
